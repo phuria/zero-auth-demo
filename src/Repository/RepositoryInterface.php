@@ -9,12 +9,22 @@
  * file that was distributed with this source code.
  */
 
-namespace Phuria\ZeroAuthDemo\Model;
+namespace Phuria\ZeroAuthDemo\Repository;
 
 /**
  * @author Beniamin Jonatan Šimko <spam@simko.it>
  */
-class Product
+interface RepositoryInterface
 {
+    /**
+     * @param $identity
+     *
+     * @return mixed
+     */
+    public function findOne($identity);
 
+    /**
+     * @return mixed
+     */
+    public function findAll();
 }

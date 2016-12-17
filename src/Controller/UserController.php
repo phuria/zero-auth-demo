@@ -12,23 +12,22 @@
 namespace Phuria\ZeroAuthDemo\Controller;
 
 use Phuria\ZeroAuthDemo\App;
-use Phuria\ZeroAuthDemo\Repository;
-use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Phuria\ZeroAuthDemo\Model;
 
 /**
  * @author Beniamin Jonatan Šimko <spam@simko.it>
  */
-class ProductController extends AbstractController
+class UserController extends AbstractController
 {
     /**
      * @inheritdoc
      */
     public function loadRouting(App $app)
     {
-        $app->getWrappedApp()->get('/product/', [$this, 'listAction']);
-        $app->getWrappedApp()->get('/product/{id}', [$this, 'getAction']);
+        $app->getWrappedApp()->get('/user/', [$this, 'listAction']);
+        $app->getWrappedApp()->post('/user/', [$this, 'postAction']);
     }
 
     /**
@@ -37,22 +36,23 @@ class ProductController extends AbstractController
      */
     public function listAction(ServerRequestInterface $request, ResponseInterface $response)
     {
-        $request->getQueryParams();
-
-        $response = [];
-
-        $cursor = [
-            'before' => '',
-            'after'  => ''
-        ];
+        $result = $this->getUserRepository()->findAll();
     }
 
     /**
-     * @param RequestInterface  $request
-     * @param ResponseInterface $response
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface      $response
      */
-    public function getAction(RequestInterface $request, ResponseInterface $response)
+    public function postAction(ServerRequestInterface $request, ResponseInterface $response)
     {
+        $query = $request->getQueryParams();
+
+        $user = new Model\User();
+        $user->id = (string) $query['id'];
+        $user->verifier = (string) $query['verifier'];
+
+        $this->getUserRepository()->save($user);
+
 
     }
 }

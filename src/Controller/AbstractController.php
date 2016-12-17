@@ -13,6 +13,7 @@ namespace Phuria\ZeroAuthDemo\Controller;
 
 use Interop\Container\ContainerInterface;
 use Phuria\ZeroAuthDemo\App;
+use Phuria\ZeroAuthDemo\Repository;
 
 /**
  * @author Beniamin Jonatan Šimko <spam@simko.it>
@@ -44,5 +45,21 @@ abstract class AbstractController
     public function getContainer()
     {
         return $this->container;
+    }
+
+    /**
+     * @return Repository\ProductInterface
+     */
+    public function getProductRepository()
+    {
+        return $this->getContainer()[Repository\ProductInterface::class];
+    }
+
+    /**
+     * @return Repository\UserInterface
+     */
+    public function getUserRepository()
+    {
+        return $this->getContainer()[Repository\UserInterface::class];
     }
 }

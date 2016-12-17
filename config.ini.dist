@@ -1,0 +1,6 @@
+[DB]
+db.host = localhost
+db.user = root
+db.password = 123456
+db.database = zeroauth
+db.driver = pdo_mysql

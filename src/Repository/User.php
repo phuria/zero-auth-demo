@@ -11,19 +11,19 @@
 
 namespace Phuria\ZeroAuthDemo\Repository;
 
-use Phuria\ZeroAuthDemo\Model as Model;
+use Phuria\ZeroAuthDemo\Model;
 
 /**
  * @author Beniamin Jonatan Šimko <spam@simko.it>
  */
-class Product extends AbstractPDORepository implements ProductInterface
+class User extends AbstractPDORepository implements UserInterface
 {
     /**
      * @inheritdoc
      */
     public function getTableName()
     {
-        return 'product';
+        return 'user';
     }
 
     /**
@@ -31,24 +31,6 @@ class Product extends AbstractPDORepository implements ProductInterface
      */
     public function getModelClass()
     {
-        return Model\Product::class;
-    }
-
-    /**
-     * @param mixed $identity
-     *
-     * @return Model\Product
-     */
-    public function findOne($identity)
-    {
-        return parent::findOne($identity);
-    }
-
-    /**
-     * @return Model\Product[]
-     */
-    public function findAll()
-    {
-        return parent::findAll();
+        return Model\User::class;
     }
 }

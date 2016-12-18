@@ -10,5 +10,5 @@
 
 require '../vendor/autoload.php';
 
-$app = new \Phuria\ZeroAuthDemo\App(parse_ini_file('../config.ini'));
+$app = new \Phuria\ZeroAuthDemo\App(parse_ini_file('../config.ini'), true);
 $app->getWrappedApp()->run();

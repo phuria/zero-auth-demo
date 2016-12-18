@@ -13,11 +13,15 @@ namespace Phuria\ZeroAuthDemo;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\Setup;
 use Interop\Container\ContainerInterface;
 use Phuria\ZeroAuthDemo\Controller\ProductController;
+use Phuria\ZeroAuthDemo\Controller\UserController;
+use Phuria\ZeroAuthDemo\DoctrineType\BigIntegerType;
+use Phuria\ZeroAuthDemo\Middleware\ExceptionHandler;
 use Phuria\ZeroAuthDemo\Repository;
 use Slim\App as SlimApp;
 
@@ -38,18 +42,25 @@ class App
      */
     private $wrappedApp;
 
-
-
+    /**
+     * Application controllers
+     */
     private function loadControllers()
     {
         new ProductController($this);
+        new UserController($this);
     }
 
+    /**
+     * Application services
+     */
     private function loadServices()
     {
         $container = $this->getContainer();
 
         $container[Connection::class] = function (ContainerInterface $container) {
+            Type::addType('BigInteger', BigIntegerType::class);
+
             return DriverManager::getConnection([
                 'dbname'   => $container[static::PARAM_DB_DATABASE],
                 'user'     => $container[static::PARAM_DB_USER],
@@ -61,28 +72,20 @@ class App
 
         $container[EntityManagerInterface::class] = function (ContainerInterface $container) {
             $config = Setup::createAnnotationMetadataConfiguration([
-                __DIR__ . '/Entity'
+                __DIR__ . '/Entity',
+                __DIR__ . '/Embeddable'
             ], $container[static::PARAM_APP_DEBUG], null, null, false);
 
             return EntityManager::create($container[Connection::class], $config);
         };
+    }
 
-        $container['pdo'] = function (ContainerInterface $container) {
-            $dsn = "mysql:host={$container[static::PARAM_DB_HOST]};dbname={$container[static::PARAM_DB_DATABASE]}";
-
-            $pdo = new \PDO($dsn, $container[static::PARAM_DB_USER], $container[static::PARAM_DB_PASSWORD]);
-            $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-
-            return $pdo;
-        };
-
-        $container[Repository\ProductInterface::class] = function (ContainerInterface $container) {
-            return new Repository\Product($container['pdo']);
-        };
-
-        $container[Repository\UserInterface::class] = function (ContainerInterface $container) {
-            return new Repository\User($container['pdo']);
-        };
+    /**
+     * Application middleware
+     */
+    private function loadMiddleware()
+    {
+        $this->wrappedApp->add(new ExceptionHandler());
     }
 
     /**
@@ -104,6 +107,7 @@ class App
 
         $this->loadServices();
         $this->loadControllers();
+        $this->loadMiddleware();
     }
 
     /**

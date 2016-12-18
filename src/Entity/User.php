@@ -33,7 +33,7 @@ class User
     /**
      * @var BigInteger
      *
-     * @ORM\Column(name="verifier", type="blob", nullable=false)
+     * @ORM\Column(name="verifier", type="BigInteger", nullable=false)
      */
     private $verifier;
 
@@ -63,5 +63,17 @@ class User
     public function getVerifier()
     {
         return $this->verifier;
+    }
+
+    /**
+     * @param BigInteger $verifier
+     *
+     * @return User
+     */
+    public function setVerifier(BigInteger $verifier)
+    {
+        $this->verifier = $verifier;
+
+        return $this;
     }
 }

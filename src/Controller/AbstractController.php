@@ -11,9 +11,10 @@
 
 namespace Phuria\ZeroAuthDemo\Controller;
 
+use Doctrine\ORM\EntityManagerInterface;
 use Interop\Container\ContainerInterface;
 use Phuria\ZeroAuthDemo\App;
-use Phuria\ZeroAuthDemo\Repository;
+use Psr\Http\Message\ResponseInterface;
 
 /**
  * @author Beniamin Jonatan Šimko <spam@simko.it>
@@ -48,18 +49,23 @@ abstract class AbstractController
     }
 
     /**
-     * @return Repository\ProductInterface
+     * @return EntityManagerInterface
      */
-    public function getProductRepository()
+    public function getEntityManager()
     {
-        return $this->getContainer()[Repository\ProductInterface::class];
+        return $this->getContainer()[EntityManagerInterface::class];
     }
 
     /**
-     * @return Repository\UserInterface
+     * @param ResponseInterface $response
+     * @param mixed             $data
+     *
+     * @return ResponseInterface
      */
-    public function getUserRepository()
+    public function jsonResponse(ResponseInterface $response, $data)
     {
-        return $this->getContainer()[Repository\UserInterface::class];
+        $response->getBody()->write(json_encode($data));
+
+        return $response;
     }
 }

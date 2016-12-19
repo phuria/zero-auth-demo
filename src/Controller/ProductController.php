@@ -31,25 +31,59 @@ class ProductController extends AbstractController
     {
         $app->getWrappedApp()->get('/product/', [$this, 'listAction']);
         $app->getWrappedApp()->post('/product/', [$this, 'postAction']);
-        $app->getWrappedApp()->get('/product/{id}', [$this, 'getAction']);
-        $app->getWrappedApp()->delete('/product/{id}', [$this, 'deleteAction']);
-        $app->getWrappedApp()->patch('/product/{id}', [$this, 'patchAction']);
+        $app->getWrappedApp()->get('/product/{id}/', [$this, 'getAction']);
+        $app->getWrappedApp()->delete('/product/{id}/', [$this, 'deleteAction']);
+        $app->getWrappedApp()->patch('/product/{id}/', [$this, 'patchAction']);
     }
 
     /**
      * @param ServerRequestInterface $request
      * @param ResponseInterface      $response
+     *
+     * @return ResponseInterface
      */
     public function listAction(ServerRequestInterface $request, ResponseInterface $response)
     {
-        $request->getQueryParams();
+        $query = $request->getQueryParams();
 
-        $response = [];
+        $qb = $this->getEntityManager()->createQueryBuilder();
+        $qb->addSelect('p');
+        $qb->from(Product::class, 'p');
+        $qb->setMaxResults(3);
 
-        $cursor = [
-            'before' => '',
-            'after'  => ''
-        ];
+        if ($query['after']) {
+            $qb->andWhere('p.id > :after');
+            $qb->setParameter('after', $query['after']);
+        }
+
+        if ($query['before']) {
+            $qb->andWhere('p.id < :before');
+            $qb->setParameter('before', $query['before']);
+        }
+
+        $products = array_map(function (Product $product) {
+            return [
+                'id'    => $product->getId(),
+                'title' => $product->getTitle(),
+                'price' => [
+                    'amount'   => $product->getPrice()->getAmount(),
+                    'currency' => $product->getPrice()->getCurrency()
+                ]
+            ];
+        }, $qb->getQuery()->getResult());
+
+        $after = end($products)['id'];
+        $before = reset($products)['id'];
+
+        return $this->jsonResponse($response, [
+            'list'   => $products,
+            'cursor' => [
+                'after'   => $after,
+                'before'  => $before,
+                'prevUri' => "/product/?before={$before}",
+                'nextUri' => "/product/?after={$after}"
+            ]
+        ]);
     }
 
     /**
@@ -69,12 +103,12 @@ class ProductController extends AbstractController
 
         $price = new Price();
 
-        if (array_key_exists('price_amount', $query)) {
-            $price->setAmount($query['price_amount']);
+        if (array_key_exists('priceAmount', $query)) {
+            $price->setAmount($query['priceAmount']);
         }
 
-        if (array_key_exists('price_currency', $query)) {
-            $price->setCurrency($query['price_currency']);
+        if (array_key_exists('priceCurrency', $query)) {
+            $price->setCurrency($query['priceCurrency']);
         }
 
         $product = new Product($query['title'], $price);
@@ -139,12 +173,12 @@ class ProductController extends AbstractController
             $product->setTitle($query['title']);
         }
 
-        if (array_key_exists('price_amount', $query)) {
-            $product->getPrice()->setAmount($query['price_amount']);
+        if (array_key_exists('priceAmount', $query)) {
+            $product->getPrice()->setAmount($query['priceAmount']);
         }
 
-        if (array_key_exists('price_currency', $query)) {
-            $product->getPrice()->setCurrency($query['price_currency']);
+        if (array_key_exists('priceCurrency', $query)) {
+            $product->getPrice()->setCurrency($query['priceCurrency']);
         }
 
         $this->getEntityManager()->flush();

@@ -28,10 +28,13 @@ use Phuria\ZeroAuth\Middleware\UserProviderInterface;
 use Phuria\ZeroAuth\Protocol\ProtocolFacade;
 use Phuria\ZeroAuth\Protocol\ProtocolHelper;
 use Phuria\ZeroAuth\RandomGenerator\RandomBytesGenerator;
+use Phuria\ZeroAuthDemo\Controller\CartController;
+use Phuria\ZeroAuthDemo\Controller\EncryptedController;
 use Phuria\ZeroAuthDemo\Controller\ProductController;
 use Phuria\ZeroAuthDemo\Controller\SessionController;
 use Phuria\ZeroAuthDemo\Controller\UserController;
 use Phuria\ZeroAuthDemo\DoctrineType\BigIntegerType;
+use Phuria\ZeroAuthDemo\Entity\Session;
 use Phuria\ZeroAuthDemo\Middleware\AuthHandler;
 use Phuria\ZeroAuthDemo\Middleware\ExceptionHandler;
 use Slim\App as SlimApp;
@@ -63,6 +66,8 @@ class App
         new ProductController($this);
         new UserController($this);
         new SessionController($this);
+        new EncryptedController($this);
+        new CartController($this);
     }
 
     /**

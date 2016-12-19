@@ -36,11 +36,10 @@ class UserController extends AbstractController
     {
         $app->getWrappedApp()->get('/user/', [$this, 'listAction']);
         $app->getWrappedApp()->post('/user/', [$this, 'postAction']);
-        $app->getWrappedApp()->get('/user/{username}', [$this, 'getAction']);
-        $app->getWrappedApp()->delete('/user/{username}', [$this, 'deleteAction']);
-        $app->getWrappedApp()->patch('/user/{username}', [$this, 'patchAction']);
-        $app->getWrappedApp()->post('/user/{username}/session/{clientPublicKey}', [$this, 'sessionAction']);
-        $app->getWrappedApp()->post('/user/{username}/proofSession', [$this, 'proofSessionAction']);
+        $app->getWrappedApp()->get('/user/{username}/', [$this, 'getAction']);
+        $app->getWrappedApp()->delete('/user/{username}/', [$this, 'deleteAction']);
+        $app->getWrappedApp()->patch('/user/{username}/', [$this, 'patchAction']);
+        $app->getWrappedApp()->post('/user/{username}/session/{clientPublicKey}/', [$this, 'sessionAction']);
     }
 
     /**

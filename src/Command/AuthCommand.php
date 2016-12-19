@@ -12,7 +12,6 @@
 namespace Phuria\ZeroAuthDemo\Command;
 
 use phpseclib\Math\BigInteger;
-use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -42,7 +41,7 @@ class AuthCommand extends AbstractCommand
         $protocolHelper = $this->getProtocolHelper();
         $username = $input->getArgument('username');
         $password = $input->getArgument('password');
-        $uri = "/user/{$username}/auth?";
+        $uri = "/user/{$username}/auth/?";
 
         $clientKeyPair = $protocolHelper->generateClientKeyPair();
 
@@ -51,7 +50,7 @@ class AuthCommand extends AbstractCommand
 
         $output->writeln('<question>Sending public key to server.</question>');
 
-        $response = $client->request('POST', "/user/{$username}/session/{$clientKeyPair->getPublicKey()->toHex()}");
+        $response = $client->request('POST', "/user/{$username}/session/{$clientKeyPair->getPublicKey()->toHex()}/");
         $exchangeData = json_decode($response->getBody(), true);
 
         $output->writeln("Server sent following salt: <info>{$exchangeData['salt']}</info>");
@@ -90,7 +89,7 @@ class AuthCommand extends AbstractCommand
         $output->writeln("Computed client proof: <info>{$clientProof->toHex()}</info>");
         $output->writeln("<question>Sending proof to server.</question>");
 
-        $response = $client->request('POST', $exchangeData['session']['uri'] . "auth/{$clientProof->toHex()}");
+        $response = $client->request('POST', $exchangeData['session']['uri'] . "auth/{$clientProof->toHex()}/");
         $exchangeData = json_decode($response->getBody(), true);
 
         $output->writeln("Server sent following proof: <info>{$exchangeData['serverProof']}</info>");

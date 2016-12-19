@@ -29,9 +29,9 @@ class SessionController extends AbstractController
      */
     public function loadRouting(App $app)
     {
-        $app->getWrappedApp()->get('/session/{id}', [$this, 'getAction']);
-        $app->getWrappedApp()->delete('/session/{id}', [$this, 'deleteAction']);
-        $app->getWrappedApp()->post('/session/{id}/auth/{clientProof}', [$this, 'authAction']);
+        $app->getWrappedApp()->get('/session/{id}/', [$this, 'getAction']);
+        $app->getWrappedApp()->delete('/session/{id}/', [$this, 'deleteAction']);
+        $app->getWrappedApp()->post('/session/{id}/auth/{clientProof}/', [$this, 'authAction']);
     }
 
     /**

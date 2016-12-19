@@ -15,6 +15,7 @@ use Doctrine\DBAL\Exception\ConnectionException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Exceptions\Http\HttpException;
 use Exceptions\Http\Server\InternalServerErrorException;
+use Phuria\ZeroAuthDemo\Exception\CartLimitException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Zend\Diactoros\Stream;
@@ -68,6 +69,15 @@ class ExceptionHandler
                 500,
                 $exception->getErrorCode(),
                 'Unique constraint violation.'
+            );
+        }
+
+        if ($exception instanceof CartLimitException) {
+            return $this->createErrorResponse(
+                $response,
+                400,
+                $exception->getCode(),
+                $exception->getMessage()
             );
         }
 

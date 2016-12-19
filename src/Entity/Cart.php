@@ -70,4 +70,12 @@ class Cart
     {
         return $this->products;
     }
+
+    /**
+     * @return User
+     */
+    public function getCreatedBy()
+    {
+        return $this->createdBy;
+    }
 }

@@ -304,8 +304,6 @@ __Result:__ product list and currency wallet
 Encrypted request
 ---
 
-Example of usage session key to encrypting data.
-
 ```
 POST /encrypted/
 ```

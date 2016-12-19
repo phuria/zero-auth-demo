@@ -111,6 +111,9 @@ POST /session/[sessionId]/auth/[clientProof]
 }
 ```
 
+Authorization variables
+---
+
 `Session key` - should be used to data encryption. 
 Server and client known him, but him are not sent over network.
 
@@ -133,6 +136,7 @@ __Query parameters:__
  - `after` - minimum product id
  - `before` - maximum product id 
 
+__Result:__ product list with cursor
 ```json
 {
   "list": [
@@ -181,9 +185,44 @@ __Query parameters:__
  - `priceAmount` - product price in cents (integer)
  - `priceCurrency` - product price currency
  
+__Result:__ inserted product id
 ```json
 {
   "id": 1
 }
 ```
 
+### Product get
+
+```
+GET /product/[product]/
+```
+
+__Result:__ product entity
+```json
+{
+  "id": 1,
+  "title": "Fallout",
+  "price": {
+    "amount": 199,
+    "currency": "USD"
+  }
+}
+```
+
+### Product remove
+
+```
+DELETE /product/[product]/ 
+```
+
+__Result:__ removed product id
+```json
+{
+  "id": 1
+}
+```
+
+### Product update
+
+__Query parameters:__ see ()[Product insert]

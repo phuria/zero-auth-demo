@@ -37,32 +37,35 @@ class EncryptedController extends AbstractController
      *
      * @return ResponseInterface
      */
-    public function getAction(ServerRequestInterface $request, ResponseInterface $response)
+    public function postAction(ServerRequestInterface $request, ResponseInterface $response)
     {
         $query = $request->getQueryParams();
         $session = $this->getSession($request, true);
 
         if (!$query['cipher'] || !$query['iv']) {
-            throw new BadRequestException();
+            //throw new BadRequestException();
         }
 
         if (false === $this->getCrypto()->supports($query['cipher'])) {
-            throw new BadRequestException();
+            //throw new BadRequestException();
         }
+
+        $query['cipher'] = 'aes-128-cbc';
+        $query['iv'] = $this->getCrypto()->generateIv($query['cipher']);
 
         $data = $this->getCrypto()->decrypt($query['data'], $query['cipher'], $session->getSessionKey(), $query['iv']);
 
         if (!$data['method'] || !$data['uri']) {
-            throw new BadRequestException();
+            //throw new BadRequestException();
         }
 
-        $internalResponse = $this->getClient()->request($data['method'], $data['uri']);
+        //$internalResponse = $this->getClient()->request($data['method'], $data['uri']);
 
         return $this->jsonResponse($response, [
             'cipher' => $query['cipher'],
             'iv'     => $query['iv'],
             'data'   => $this->getCrypto()->encrypt(
-                $internalResponse->getBody(),
+                'test',
                 $query['cipher'],
                 $session->getSessionKey(),
                 $query['iv']

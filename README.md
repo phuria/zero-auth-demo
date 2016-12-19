@@ -15,20 +15,26 @@ Installation
     ```bash
     cp config.ini.dist config.ini
     ```
+    
+3. Composer update
 
-3. Create database schema
+    ```bash
+    composer update
+    ```
+
+4. Create database schema
 
     ```bash
     php vendor/bin/doctrine orm:schema-tool:update --complete --force
     ```
 
-4. Import data
+5. Import data
 
     ```bash
     sudo mysql zeroauth < schema.sql
     ```
 
-5. Run HTTP server
+6. Run HTTP server
 
     ```bash
     cd web && php -S 0.0.0.0:8080
@@ -123,6 +129,21 @@ Server and client known him, but him are not sent over network.
 
 For more details about Remote Secure Protocol see [RFC5054](https://tools.ietf.org/html/rfc5054).
 
+HTTP Request with authorization header (example)
+---
+
+```
+GET /product/ HTTP/1.1
+Host: localhost
+Accept: */*
+Accept-Language: en-us
+Accept-Encoding: gzip, deflate
+User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)
+Authorization: Basic dc4380758e41233b4757e96694663714:cb312d21c3a2c8ec53781994617ba6f9abb325ae
+
+```
+
+
 Product
 ---
 
@@ -186,11 +207,6 @@ __Query parameters:__
  - `priceCurrency` - product price currency
  
 __Result:__ inserted product id
-```json
-{
-  "id": 1
-}
-```
 
 ### Product get
 
@@ -217,12 +233,97 @@ DELETE /product/[product]/
 ```
 
 __Result:__ removed product id
-```json
-{
-  "id": 1
-}
-```
 
 ### Product update
 
-__Query parameters:__ see ()[Product insert]
+```
+PATCH /product/[product]/
+```
+
+__Query parameters:__ see [Product insert](#product-insert)
+
+__Result:__ updated product id
+
+Cart
+---
+
+### Cart create
+
+```
+POST /cart/
+```
+
+__Result:__ created cart id
+
+### Add product to cart
+
+```
+POST /cart/[cart]/product/[product]/
+```
+
+__Result:__ product in cart id (is not product id)
+
+__Errors:__
+ - `4000` - Maximum product count in cart reached.
+
+### Remove product from cart
+
+```
+DELETE /cart/[cart]/product/[productInCart]/
+```
+
+__Result:__ removed product in cart id
+
+### Show cart
+
+```
+GET /cart/[cart]/
+```
+
+__Result:__ product list and currency wallet
+
+```json
+{
+  "id": 1,
+  "createdBy": "user",
+  "productsIn": [
+    {
+      "id": 1,
+      "product": {
+        "id": 1,
+        "uri": "/product/1/"
+      }
+    }
+  ],
+  "wallet": {
+    "USD": 199
+  }
+}
+```
+
+Encrypted request
+---
+
+Example of usage session key to encrypting data.
+
+```
+POST /encrypted/
+```
+
+__Query parameters:__
+ - `iv` - Initialization Vector
+ - `cipher` - one from supproted ciphers, ie. `aes-128-cbc`
+ - `data` - encrypted request
+ 
+__Encrypted request contains:__
+ - `method` - HTTP method, ie. `POST`
+ - `uri` - HTTP URI, ie. `/product/?title=New%20Game`
+ 
+__Result:__ encrypted response
+```json
+{
+  "cipher": "aes-128-cbc",
+  "iv": "833ba03f2a480377",
+  "data": "cMTv6lSuKF/c4835S8uFUA=="
+}
+```

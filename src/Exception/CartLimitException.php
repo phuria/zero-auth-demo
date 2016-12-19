@@ -21,6 +21,6 @@ class CartLimitException extends \DomainException
      */
     public function __construct()
     {
-        parent::__construct('Products in cart limit reached.', 4000);
+        parent::__construct('Maximum product count in cart reached.', 4000);
     }
 }

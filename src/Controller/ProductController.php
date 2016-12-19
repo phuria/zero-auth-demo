@@ -59,7 +59,14 @@ class ProductController extends AbstractController
         if ($query['before']) {
             $qb->andWhere('p.id < :before');
             $qb->setParameter('before', $query['before']);
+            $qb->addOrderBy('p.id', 'DESC');
         }
+
+        $result = $qb->getQuery()->getResult();
+
+        usort($result, function (Product $a, Product $b) {
+            return ($a->getId() > $b->getId()) ? 1 : -1;
+        });
 
         $products = array_map(function (Product $product) {
             return [
@@ -70,7 +77,11 @@ class ProductController extends AbstractController
                     'currency' => $product->getPrice()->getCurrency()
                 ]
             ];
-        }, $qb->getQuery()->getResult());
+        }, $result);
+
+        if (empty($products)) {
+            throw new NotFoundException();
+        }
 
         $after = end($products)['id'];
         $before = reset($products)['id'];

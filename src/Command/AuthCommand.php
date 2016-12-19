@@ -41,7 +41,6 @@ class AuthCommand extends AbstractCommand
         $protocolHelper = $this->getProtocolHelper();
         $username = $input->getArgument('username');
         $password = $input->getArgument('password');
-        $uri = "/user/{$username}/auth/?";
 
         $clientKeyPair = $protocolHelper->generateClientKeyPair();
 

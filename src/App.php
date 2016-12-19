@@ -20,6 +20,8 @@ use Doctrine\ORM\Tools\Setup;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use Interop\Container\ContainerInterface;
+use Phuria\ZeroAuth\Crypto\CryptoInterface;
+use Phuria\ZeroAuth\Crypto\OpenSLLCrypto;
 use Phuria\ZeroAuth\HashGenerator\Sha1Generator;
 use Phuria\ZeroAuth\Middleware\SessionInterface;
 use Phuria\ZeroAuth\Middleware\UserProviderInterface;
@@ -107,12 +109,8 @@ class App
             return ProtocolHelper::create1024($protocolFacade);
         };
 
-        $container[UserProviderInterface::class] = function (ContainerInterface $container) {
-            return new UserProvider($container[EntityManagerInterface::class]);
-        };
-
-        $container[SessionInterface::class] = function () {
-            return new Session();
+        $container[CryptoInterface::class] = function () {
+            return new OpenSLLCrypto(new RandomBytesGenerator());
         };
     }
 

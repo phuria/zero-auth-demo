@@ -75,6 +75,13 @@ class Session
     private $serverProof;
 
     /**
+     * @var BigInteger
+     *
+     * @ORM\Column(name="session_key", type="BigInteger", nullable=true)
+     */
+    private $sessionKey;
+
+    /**
      * @param User       $user
      * @param BigInteger $clientPublicKey
      * @param KeyPair    $serverKeyPair
@@ -166,5 +173,25 @@ class Session
     public function getServerPrivateKey()
     {
         return $this->serverPrivateKey;
+    }
+
+    /**
+     * @return BigInteger
+     */
+    public function getSessionKey()
+    {
+        return $this->sessionKey;
+    }
+
+    /**
+     * @param string $sessionKey
+     *
+     * @return $this
+     */
+    public function setSessionKey($sessionKey)
+    {
+        $this->sessionKey = $sessionKey;
+
+        return $this;
     }
 }

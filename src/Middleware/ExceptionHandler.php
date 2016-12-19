@@ -45,6 +45,7 @@ class ExceptionHandler
      * @param \Exception        $exception
      *
      * @return ResponseInterface
+     * @throws \Exception
      */
     private function onException(ResponseInterface $response, \Exception $exception)
     {
@@ -71,8 +72,6 @@ class ExceptionHandler
         }
 
         throw $exception;
-
-        return $response->withStatus(500);
     }
 
     /**

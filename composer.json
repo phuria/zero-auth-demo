@@ -1,7 +1,7 @@
 {
   "name": "phuria/zero-auth-demo",
   "description": "Demo phuria/zero-auth package.",
-  "homepage": "https://github.com/phuria/zero-auth",
+  "homepage": "https://github.com/phuria/zero-auth-demo",
   "keywords": [
     "ZeroAuth"
   ],

@@ -12,9 +12,11 @@
 namespace Phuria\ZeroAuthDemo\Controller;
 
 use Doctrine\ORM\EntityManagerInterface;
+use Exceptions\Http\Client\ForbiddenException;
 use Interop\Container\ContainerInterface;
 use Phuria\ZeroAuth\Protocol\ProtocolHelper;
 use Phuria\ZeroAuthDemo\App;
+use Phuria\ZeroAuthDemo\Entity\Session;
 use Phuria\ZeroAuthDemo\Entity\User;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -82,11 +84,23 @@ abstract class AbstractController
 
     /**
      * @param ServerRequestInterface $request
+     * @param bool                   $required
      *
-     * @return ResponseInterface
+     * @return Session|null
+     * @throws ForbiddenException
      */
-    public function getCurrentUser(ServerRequestInterface $request)
+    public function getSession(ServerRequestInterface $request, $required = false)
     {
-        return $request->getAttribute(User::class);
+        $session = $request->getAttribute(Session::class);
+
+        if ($session instanceof Session) {
+            return $session;
+        }
+
+        if ($required) {
+            throw new ForbiddenException();
+        }
+
+        return null;
     }
 }

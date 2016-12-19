@@ -114,6 +114,7 @@ class SessionController extends AbstractController
 
         $session->setClientProof($clientProof);
         $session->setServerProof($serverProof);
+        $session->setSessionKey($sessionKey);
 
         $this->getEntityManager()->flush();
 

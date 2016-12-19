@@ -6,48 +6,49 @@ Installation
 
 1. Clone repository
 
-```bash
-git clone git@github.com:phuria/zero-auth-demo.git && cd zero-auth-demo
-```
+    ```bash
+    git clone git@github.com:phuria/zero-auth-demo.git && cd zero-auth-demo
+    ```
 
 2. Create config.ini
 
-```bash
-cp config.ini.dist config.ini
-```
+    ```bash
+    cp config.ini.dist config.ini
+    ```
 
 3. Create database schema
 
-```bash
-php vendor/bin/doctrine orm:schema-tool:update --complete --force
-```
+    ```bash
+    php vendor/bin/doctrine orm:schema-tool:update --complete --force
+    ```
 
 4. Import data
 
-```bash
-sudo mysql zeroauth < schema.sql
-```
+    ```bash
+    sudo mysql zeroauth < schema.sql
+    ```
 
 5. Run HTTP server
 
-```bash
-cd web && php -S 0.0.0.0:8080
-```
+    ```bash
+    cd web && php -S 0.0.0.0:8080
+    ```
 
-Client registration
+Client registration via CLI
 ---
 
 ```bash
 php console.php register [username] [password]
 ```
 
-OR
+Client registration via API
+---
 
 ```
 POST /user/?username=[username]&salt=[salt]&verifier=[verifier]
 ```
 
-Client authorization
+Client authorization via CLI
 ---
 
 ```bash
@@ -78,7 +79,8 @@ Session is fully authorized.
 You can now use following header: Authorization: Basic 992f2e81403ba210efd753097445357b:ebf2f6d05bccecbd258632112b8644e3cc425998
 ```
 
-OR 
+Client authorization via API
+---
 
 ```
 POST /user/[username]/session/[clientPublicKey]

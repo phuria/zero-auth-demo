@@ -14,7 +14,12 @@ namespace Phuria\ZeroAuthDemo\Controller;
 use Exceptions\Http\Client\NotFoundException;
 use Exceptions\Http\Client\UnprocessableEntityException;
 use phpseclib\Math\BigInteger;
+use Phuria\ZeroAuth\Middleware\ServerExchangeHandler;
+use Phuria\ZeroAuth\Middleware\SessionInterface;
+use Phuria\ZeroAuth\Middleware\UserProviderInterface;
+use Phuria\ZeroAuth\Protocol\ProtocolHelper;
 use Phuria\ZeroAuthDemo\App;
+use Phuria\ZeroAuthDemo\Entity\Session;
 use Phuria\ZeroAuthDemo\Entity\User;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -34,6 +39,8 @@ class UserController extends AbstractController
         $app->getWrappedApp()->get('/user/{username}', [$this, 'getAction']);
         $app->getWrappedApp()->delete('/user/{username}', [$this, 'deleteAction']);
         $app->getWrappedApp()->patch('/user/{username}', [$this, 'patchAction']);
+        $app->getWrappedApp()->post('/user/{username}/session/{clientPublicKey}', [$this, 'sessionAction']);
+        $app->getWrappedApp()->post('/user/{username}/proofSession', [$this, 'proofSessionAction']);
     }
 
     /**
@@ -64,7 +71,8 @@ class UserController extends AbstractController
 
         return $this->jsonResponse($response, [
             'username' => $user->getUsername(),
-            'verifier' => $user->getVerifier()->toHex()
+            'verifier' => $user->getVerifier()->toHex(),
+            'salt'     => $user->getSalt()->toHex()
         ]);
     }
 
@@ -79,11 +87,16 @@ class UserController extends AbstractController
         $em = $this->getEntityManager();
         $query = $request->getQueryParams();
 
-        if (!$query['username'] || !$query['verifier']) {
+        if (!$query['username'] || !$query['verifier'] || !$query['salt']) {
             throw new UnprocessableEntityException();
         }
 
-        $user = new User($query['username'], new BigInteger($query['verifier'], 16));
+        $user = new User(
+            $query['username'],
+            new BigInteger($query['salt'], 16),
+            new BigInteger($query['verifier'], 16)
+        );
+
         $em->persist($user);
         $em->flush();
 
@@ -125,10 +138,44 @@ class UserController extends AbstractController
             $user->setVerifier(new BigInteger($query['verifier'], 16));
         }
 
+        if (array_key_exists('salt', $query)) {
+            $user->setVerifier(new BigInteger($query['salt'], 16));
+        }
+
         $this->getEntityManager()->flush();
 
         return $this->jsonResponse($response, [
             'username' => $user->getUsername()
+        ]);
+    }
+
+    /**
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface      $response
+     *
+     * @return ResponseInterface
+     */
+    public function sessionAction(ServerRequestInterface $request, ResponseInterface $response)
+    {
+        $user = $this->findUser($request);
+
+        $clientPublicKey = new BigInteger($request->getAttribute('clientPublicKey'), 16);
+        $keyPair = $this->getProtocolHelper()->generateServerKeyPair($user->getVerifier());
+
+        $session = new Session($user, $clientPublicKey, $keyPair);
+        $em = $this->getEntityManager();
+        $em->persist($session);
+        $em->flush();
+
+        return $this->jsonResponse($response, [
+            'username'        => $user->getUsername(),
+            'verifier'        => $user->getVerifier()->toHex(),
+            'salt'            => $user->getSalt()->toHex(),
+            'serverPublicKey' => $keyPair->getPublicKey()->toHex(),
+            'session'         => [
+                'id'  => $session->getId(),
+                'uri' => "/session/{$session->getId()}/",
+            ],
         ]);
     }
 

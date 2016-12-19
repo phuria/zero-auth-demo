@@ -4,3 +4,7 @@ db.user = root
 db.password = 123456
 db.database = zeroauth
 db.driver = pdo_mysql
+
+[App]
+app.host = localhost
+app.port = 8080

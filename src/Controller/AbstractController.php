@@ -13,8 +13,11 @@ namespace Phuria\ZeroAuthDemo\Controller;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Interop\Container\ContainerInterface;
+use Phuria\ZeroAuth\Protocol\ProtocolHelper;
 use Phuria\ZeroAuthDemo\App;
+use Phuria\ZeroAuthDemo\Entity\User;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * @author Beniamin Jonatan Šimko <spam@simko.it>
@@ -57,6 +60,14 @@ abstract class AbstractController
     }
 
     /**
+     * @return ProtocolHelper
+     */
+    public function getProtocolHelper()
+    {
+        return $this->getContainer()[ProtocolHelper::class];
+    }
+
+    /**
      * @param ResponseInterface $response
      * @param mixed             $data
      *
@@ -67,5 +78,15 @@ abstract class AbstractController
         $response->getBody()->write(json_encode($data));
 
         return $response;
+    }
+
+    /**
+     * @param ServerRequestInterface $request
+     *
+     * @return ResponseInterface
+     */
+    public function getCurrentUser(ServerRequestInterface $request)
+    {
+        return $request->getAttribute(User::class);
     }
 }

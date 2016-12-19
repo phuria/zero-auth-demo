@@ -17,12 +17,21 @@ use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\Setup;
+use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
 use Interop\Container\ContainerInterface;
+use Phuria\ZeroAuth\HashGenerator\Sha1Generator;
+use Phuria\ZeroAuth\Middleware\SessionInterface;
+use Phuria\ZeroAuth\Middleware\UserProviderInterface;
+use Phuria\ZeroAuth\Protocol\ProtocolFacade;
+use Phuria\ZeroAuth\Protocol\ProtocolHelper;
+use Phuria\ZeroAuth\RandomGenerator\RandomBytesGenerator;
 use Phuria\ZeroAuthDemo\Controller\ProductController;
+use Phuria\ZeroAuthDemo\Controller\SessionController;
 use Phuria\ZeroAuthDemo\Controller\UserController;
 use Phuria\ZeroAuthDemo\DoctrineType\BigIntegerType;
+use Phuria\ZeroAuthDemo\Middleware\AuthHandler;
 use Phuria\ZeroAuthDemo\Middleware\ExceptionHandler;
-use Phuria\ZeroAuthDemo\Repository;
 use Slim\App as SlimApp;
 
 /**
@@ -36,6 +45,8 @@ class App
     const PARAM_DB_PASSWORD = 'db.password';
     const PARAM_DB_DATABASE = 'db.database';
     const PARAM_APP_DEBUG = 'app.debug';
+    const PARAM_APP_HOST = 'app.host';
+    const PARAM_APP_PORT = 'app.port';
 
     /**
      * @var SlimApp
@@ -49,6 +60,7 @@ class App
     {
         new ProductController($this);
         new UserController($this);
+        new SessionController($this);
     }
 
     /**
@@ -78,6 +90,30 @@ class App
 
             return EntityManager::create($container[Connection::class], $config);
         };
+
+        $container[ClientInterface::class] = function (ContainerInterface $container) {
+            return new Client([
+                'base_uri' => "http://{$container[static::PARAM_APP_HOST]}:{$container[static::PARAM_APP_PORT]}",
+                'timeout'  => 1.0
+            ]);
+        };
+
+        $container[ProtocolHelper::class] = function () {
+            $protocolFacade = new ProtocolFacade(
+                new Sha1Generator(),
+                new RandomBytesGenerator()
+            );
+
+            return ProtocolHelper::create1024($protocolFacade);
+        };
+
+        $container[UserProviderInterface::class] = function (ContainerInterface $container) {
+            return new UserProvider($container[EntityManagerInterface::class]);
+        };
+
+        $container[SessionInterface::class] = function () {
+            return new Session();
+        };
     }
 
     /**
@@ -86,6 +122,7 @@ class App
     private function loadMiddleware()
     {
         $this->wrappedApp->add(new ExceptionHandler());
+        $this->wrappedApp->add(new AuthHandler($this->getContainer()[EntityManagerInterface::class]));
     }
 
     /**

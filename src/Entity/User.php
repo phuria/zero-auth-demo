@@ -33,6 +33,13 @@ class User
     /**
      * @var BigInteger
      *
+     * @ORM\Column(name="salt", type="BigInteger", nullable=false)
+     */
+    private $salt;
+
+    /**
+     * @var BigInteger
+     *
      * @ORM\Column(name="verifier", type="BigInteger", nullable=false)
      */
     private $verifier;
@@ -41,11 +48,13 @@ class User
      * User constructor.
      *
      * @param string     $username
+     * @param BigInteger $salt
      * @param BigInteger $verifier
      */
-    public function __construct($username, BigInteger $verifier)
+    public function __construct($username, BigInteger $salt, BigInteger $verifier)
     {
         $this->username = $username;
+        $this->salt = $salt;
         $this->verifier = $verifier;
     }
 
@@ -70,9 +79,29 @@ class User
      *
      * @return User
      */
-    public function setVerifier(BigInteger $verifier)
+    public function setVerifier($verifier)
     {
         $this->verifier = $verifier;
+
+        return $this;
+    }
+
+    /**
+     * @return BigInteger
+     */
+    public function getSalt()
+    {
+        return $this->salt;
+    }
+
+    /**
+     * @param BigInteger $salt
+     *
+     * @return User
+     */
+    public function setSalt($salt)
+    {
+        $this->salt = $salt;
 
         return $this;
     }

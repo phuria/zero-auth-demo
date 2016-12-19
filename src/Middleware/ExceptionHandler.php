@@ -70,9 +70,9 @@ class ExceptionHandler
             );
         }
 
-        dump($exception);
+        throw $exception;
 
-        return $response;
+        return $response->withStatus(500);
     }
 
     /**
